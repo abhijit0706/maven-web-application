@@ -1,0 +1,40 @@
+node{
+
+def mavenHome = tool name: "maven3.8.3"
+
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '4', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+
+
+
+stage('CheckOutCode'){
+git branch: 'development', credentialsId: '1d7632a9-792e-4c04-b0e3-7d6d25f335f4', url: 'https://github.com/abhijit0706/maven-web-application.git'
+}
+
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage('ExcuteSonarQubeReport'){
+sh "mvn clean sonar:sonar"
+}
+
+/*
+stage('UplodeArtifactsInto NexusRepo'){
+sh "mvn deploy"
+}
+
+stage('DeployAppIntoTomcatServer'){
+sshagent(['63fe02d8-0db8-46dd-9e3b-b4c12df8d68b']) {
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@52.66.235.52:/opt/apache-tomcat-9.0.54/webapps/"
+    
+}
+
+mail bcc: '', body: '''Build Over ..
+
+Regards\'
+Abhitechnologies 
+7978850492''', cc: 'abhij714@gmail.com', from: '', replyTo: '', subject: 'Build Over.......', to: 'abhij714@gmail.com'
+}
+*/
+
+}
